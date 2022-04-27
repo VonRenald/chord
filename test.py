@@ -1,24 +1,29 @@
 import random
 import sys
 
-_N = 32
-_Id = 5
-_Ip = 'none'
-_Port = 621
-_Table = {_Id+1:{"id":_Id,"ip":_Ip,"port":_Port}}
-i_=1
-nv_ = (_Id+(1<<i_))%_N
-stop_ = False
 
-if (_Id == 29 ):
-    print("suivant",_Suivant._Id)
+print((5-29)%32)
+# _N = 32
+# _Id = 5
+# _Ip = 'none'
+# _Port = 621
+# _Table = {_Id+1:{"id":_Id,"ip":_Ip,"port":_Port}}
+# i_=1
+# nv_ = (_Id+(1<<i_))%_N
+# stop_ = False
 
-while not stop_:
-    _Table[nv_] = {"id":_Id,"ip":_Ip,"port":_Port}
-    nv_ = (_Id+(1<<i_))%_N
-    i_+=1
-    stop_ = nv_ == _Id
-print(_Table)
+# if (_Id == 29 ):
+#     print("suivant",_Suivant._Id)
+
+# while not stop_:
+#     _Table[nv_] = {"id":_Id,"ip":_Ip,"port":_Port}
+#     nv_ = (_Id+(1<<i_))%_N
+#     i_+=1
+#     stop_ = nv_ == _Id
+# print(_Table)
+
+
+
 # N = 1<<4
 # i=0
 # v = 5
