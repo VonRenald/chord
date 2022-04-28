@@ -2,7 +2,7 @@ import random
 import sys
 
 
-print((5-29)%32)
+print(max(13,19)-min(13,19),max(13,8)-min(13,8))
 # _N = 32
 # _Id = 5
 # _Ip = 'none'
@@ -105,3 +105,5 @@ print((5-29)%32)
 # # for key in dico2:
 # #     dico.pop(key)
 # # print("dico",dico)
+
+

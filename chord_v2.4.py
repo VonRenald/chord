@@ -28,11 +28,11 @@ def get():
         if Key in data:
             toSend = data[Key]
         json_data = {
-            "type"  : 'resP',
+            "type"  : 'res',
             "key"   : Key,
             "val"   : toSend
         }
-        json_send('localhost', Port, json_data)
+        json_send(Ip, Port, json_data)
     else:
         json_send(_Suivant._Ip, _Suivant._Port, json_data)
 
@@ -52,11 +52,11 @@ def update():
             print("-Update-","key :",Key,"val :",Val,"ip :",Ip,"port :",Port)
 
             json_data = {
-                "type"  : 'respUpdateAck',
+                "type"  : 'respupdateack',
                 "key"   : Key
             }
 
-            json_send('localhost', Port, json_data)
+            json_send(Ip, Port, json_data)
         else:
             print("-Update-","key :",Key,"val :",Val)
     else:
@@ -64,7 +64,7 @@ def update():
 
 
 
-def joind():#joind Id Ip Port
+def join():#join Id Ip Port
     global json_data
     global data
     global _Suivant
@@ -78,7 +78,7 @@ def joind():#joind Id Ip Port
         }
         #print(_Id,"nok id invalide")
         print(_Id,"send",json_data)
-        json_send('localhost', Port, json_data)
+        json_send(Ip, Port, json_data)
     elif Id > _Id and (_Id == _Suivant._Id or Id < _Suivant._Id or _Suivant._Id < _Id):
         data2send = {}
         newdata = {}
@@ -95,11 +95,11 @@ def joind():#joind Id Ip Port
             "ipp"   : _Ip,
             "portp" : _Port,
             "idp"   : _Id,
-            "ipps"  : _Suivant._Ip,
+            "ips"  : _Suivant._Ip,
             "ports" : _Suivant._Port,
             "ids"   : _Suivant._Id,
             "data"  : data2send
-        }#ok Ipp Portp Ipps Ports Data
+        }#ok Ipp Portp ips Ports Data
         _Suivant = Node(Ip,Port,Id)
         #print(_Id,"ok add id",Id,_Suivant._Id)
         print(_Id,"send",json_data)
@@ -109,7 +109,7 @@ def joind():#joind Id Ip Port
         json_send(_Suivant._Ip, _Suivant._Port, json_data)
 
 
-def ok():#ok Ipp Portp Ipps Ports Data
+def ok():#ok Ipp Portp ips Ports Data
     global json_data
     global _N
     global _Suivant
@@ -117,15 +117,15 @@ def ok():#ok Ipp Portp Ipps Ports Data
     global data
     data = json_data["data"]
     #print("ok",_Id,len(data),_Id+len(data),(_Id+len(data))%_N)
-    _Suivant = Node(json_data["ipps"],json_data["ports"],json_data["ids"])
+    _Suivant = Node(json_data["ips"],json_data["ports"],json_data["ids"])
     _Precdant = Node(json_data["ipp"],json_data["portp"],json_data["idp"])
     print("ok2",_Suivant._Id)
     json_data = {
-        "type" : 'plop',
+        "type" : 'new',
         "id" : _Id,
         "ip" : _Ip,
         "port" : _Port
-    }#Plop Id Ip Port   
+    }#new Id Ip Port   
     print(_Id,"send",json_data)
     json_send(_Precdant._Ip, _Precdant._Port, json_data)
 
@@ -134,21 +134,21 @@ def nok():
     global _Id
     _Id = random.randrange(_N)
     #print("ip:",_Ip,"port:",_Port,"id:",_Id)
-    #joind Id Ip Port
+    #join Id Ip Port
     json_data = {
-        "type" : 'joind',
+        "type" : 'join',
         "id" : _Id,
         "ip" : _Ip,
         "port" : _Port
     }
     print(_Id,"send",json_data)
     json_send(defaultNode._Ip, defaultNode._Port, json_data)
-#Plop Id Ip Port    
-def plop():
+#new Id Ip Port    
+def new():
     # global json_data
     # global _Suivant
     # Id = json_data["id"]
-    # #print("plop id",Id,_Id)
+    # #print("new id",Id,_Id)
     # if _Suivant._Id == Id:
     #     _Suivant = Node(json_data["ip"],json_data["port"],Id)
     # elif Id > _Id and Id < _Suivant._Id:
@@ -160,27 +160,33 @@ def plop():
     global _Precdant
     _Precdant = Node(json_data["ip"],json_data["port"],json_data["id"])
 
-if len(sys.argv) == 3:
-    _Ip = sys.argv[1]
-    _Port = int(sys.argv[2])
+_N = 1<<5
+defaultNode = Node('localhost', 8001, None)
+if(len(sys.argv) == 1):
+    _Ip = '127.0.0.1'
+    _Port = 8001
+    _Id = 0
+if len(sys.argv) == 2:
+    _Ip = '127.0.0.1'
+    _Port = int(sys.argv[1])
     _Id = 0
 elif len(sys.argv) == 4:
-    _Ip = 'localhost' #sys.argv[1]
-    _Port = int(sys.argv[2])
-    _Id = int(sys.argv[3])
-else:
-    _Port = 8001
-    _Ip = 'localhost'
-    _Id = 0
+    _Ip = '127.0.0.1'
+    _Port = int(sys.argv[1])
+    _Id = random.randrange(_N)
+    defaultNode = Node(sys.argv[2], int(sys.argv[3]), None)
+elif len(sys.argv) == 5:
+    _Ip = '127.0.0.1'
+    _Port = int(sys.argv[1])
+    _Id = int(sys.argv[2])
+    defaultNode = Node(sys.argv[3], int(sys.argv[4]), None)
 
-_N = 20
+
 data = {}; 
-# for i in range(0,len(data)):
-#     data[i]=i
-_Suivant = Node(_Ip,_Port,_Id)
-_Precdant = Node(_Ip,_Port,_Id)
 
-defaultNode = Node('localhost', 8001, None)
+_Suivant = Node(_Ip,_Port,_Id)
+_Precedant = Node(_Ip,_Port,_Id)
+
 print("ip:",_Ip,"port:",_Port,"id:",_Id)
 
 
@@ -190,10 +196,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serversocket:
     serversocket.listen(5)
     print('listening on port:', serversocket.getsockname()[1])
 
-    if _Ip != defaultNode._Ip or _Port != defaultNode._Port:
+    if len(sys.argv) == 4 or len(sys.argv) == 5:
         print("connect to default")
         json_data = {
-            "type" : 'joind',
+            "type" : 'join',
             "id" : _Id,
             "ip" : _Ip,
             "port" : _Port
@@ -211,14 +217,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serversocket:
             get()
         elif(commande == 'update'):
             update()
-        elif(commande == 'joind'):
-            joind()
+        elif(commande == 'join'):
+            join()
         elif(commande == 'ok'):
             ok()
         elif(commande == 'nok'):
             nok()
-        elif(commande == 'plop'):
-            plop()
+        elif(commande == 'new'):
+            new()
         else:
             print("invalid")
         

@@ -12,17 +12,17 @@ def get(json_data):
     
     if Key in data:
         json_data = {
-            "type"  : 'resP',
+            "type"  : 'res',
             "key"   : Key,
             "val"   : data[Key]
         }
     else:
         json_data = {
-            "type"  : 'resP',
+            "type"  : 'res',
             "key"   : Key,
             "val"   : 'null'
         }
-    json_send('localhost', Port, json_data)
+    json_send(Ip, Port, json_data)
 
     return
 def update(json_data):
@@ -35,6 +35,11 @@ def update(json_data):
         Ip = json_data["ip"]
         Port = json_data["port"]
         print("-Update-","key :",Key,"val :",Val,"ip :",Ip,"port :",Port)
+        json_data = {
+                "type"  : 'respupdateack',
+                "key"   : Key
+            }
+        json_send(Ip, Port, json_data)
     else:
         print("-Update-","key :",Key,"val :",Val)
     return
@@ -61,6 +66,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serversocket:
             update(json_data)
         else:
             print("invalid")
-        json_send('localhost', 9000, "ack")
+        #json_send('localhost', 9000, "ack")
 
         print(data)

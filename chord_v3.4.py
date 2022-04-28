@@ -61,11 +61,11 @@ def get():
         if Key in data:
             toSend = data[Key]
         json_data = {
-            "type"  : 'resP',
+            "type"  : 'res',
             "key"   : Key,
             "val"   : toSend
         }
-        json_send('localhost', Port, json_data)
+        json_send(Ip, Port, json_data)
         Vget += 1
     else:
         stop = False
@@ -111,11 +111,11 @@ def update():
             print("-Update-","key :",Key,"val :",Val,"ip :",Ip,"port :",Port)
 
             json_data = {
-                "type"  : 'respUpdateAck',
+                "type"  : 'respupdateack',
                 "key"   : Key
             }
             print(_Id,"send","client",json_data)
-            json_send('localhost', Port, json_data)
+            json_send(Ip, Port, json_data)
         else:
             print("-Update-","key :",Key,"val :",Val)
         Vupd += 1
@@ -147,7 +147,7 @@ def update():
                 i+=1
                 stop = v == _Id
 
-def joind():#joind Id Ip Port
+def join():#join Id Ip Port
     global json_data
     global data
     global _Suivant
@@ -155,14 +155,14 @@ def joind():#joind Id Ip Port
     Id = json_data["id"]
     Ip = json_data["ip"]
     Port = json_data["port"]
-    print(_Id, "joind", "Id :",Id,"_Precedant._Id",_Precedant._Id)
+    print(_Id, "join", "Id :",Id,"_Precedant._Id",_Precedant._Id)
     if Id == _Id:
         json_data = {
             "type"  : 'nok'
         }
         #print(_Id,"nok id invalide")
         print(_Id,"send",json_data)
-        json_send('localhost', Port, json_data)
+        json_send(Ip, Port, json_data)
     #elif Id < _Id and (_Id == _Precedant._Id or Id < _Suivant._Id or _Suivant._Id < _Id):
     elif (Id <= _Id and Id > _Precedant._Id) or (_Id < _Precedant._Id and (Id > _Precedant._Id or Id <= _Id)) or _Id == _Precedant._Id:    
         data2send = {}
@@ -180,11 +180,11 @@ def joind():#joind Id Ip Port
             "ipp"   : _Precedant._Ip,
             "portp" : _Precedant._Port,
             "idp"   : _Precedant._Id,
-            "ipps"  : _Ip,
+            "ips"   : _Ip,
             "ports" : _Port,
             "ids"   : _Id,
             "data"  : data2send
-        }#ok Ipp Portp Ipps Ports Data
+        }#ok Ipp Portp ips Ports Data
         _Precedant = Node(Ip,Port,Id)
         #print(_Id,"ok add id",Id,_Suivant._Id)
         print(_Id,"send",json_data)
@@ -193,7 +193,7 @@ def joind():#joind Id Ip Port
         print(_Id,"send",json_data)#modif pour parcourt table
         json_send(_Suivant._Ip, _Suivant._Port, json_data)
 
-def ok():#ok Ipp Portp Ipps Ports Data
+def ok():#ok Ipp Portp ips Ports Data
     global json_data
     global _N
     global _Suivant
@@ -204,15 +204,15 @@ def ok():#ok Ipp Portp Ipps Ports Data
 
     data = json_data["data"]
     #print("ok",_Id,len(data),_Id+len(data),(_Id+len(data))%_N)
-    _Suivant = Node(json_data["ipps"],json_data["ports"],json_data["ids"])
+    _Suivant = Node(json_data["ips"],json_data["ports"],json_data["ids"])
     _Precedant = Node(json_data["ipp"],json_data["portp"],json_data["idp"])
     print("ok2",_Suivant._Id)
     json_data = {
-        "type" : 'plop',
+        "type" : 'new',
         "id" : _Id,
         "ip" : _Ip,
         "port" : _Port
-    }#Plop Id Ip Port   
+    }#new Id Ip Port   
     print(_Id,"send",json_data)
     json_send(_Suivant._Ip, _Suivant._Port, json_data)
 
@@ -222,21 +222,21 @@ def nok():
     global _Id
     _Id = random.randrange(_N)
     #print("ip:",_Ip,"port:",_Port,"id:",_Id)
-    #joind Id Ip Port
+    #join Id Ip Port
     json_data = {
-        "type" : 'joind',
+        "type" : 'join',
         "id" : _Id,
         "ip" : _Ip,
         "port" : _Port
     }
     print(_Id,"send",json_data)
     json_send(defaultNode._Ip, defaultNode._Port, json_data)
-#Plop Id Ip Port    
-def plop():
+#new Id Ip Port    
+def new():
     # global json_data
     # global _Suivant
     # Id = json_data["id"]
-    # #print("plop id",Id,_Id)
+    # #print("new id",Id,_Id)
     # if _Suivant._Id == Id:
     #     _Suivant = Node(json_data["ip"],json_data["port"],Id)
     # elif Id > _Id and Id < _Suivant._Id:
@@ -259,7 +259,7 @@ def plop():
     #v2
     for key_ in _Table:
         #if(Key <= key_ and Key > _Table[key_]["id"]):
-        print(_Id,"plop maj table","key:",Key,"oldKey:",_Table[key_]["id"],"TabKey:",key_)
+        print(_Id,"new maj table","key:",Key,"oldKey:",_Table[key_]["id"],"TabKey:",key_)
         if(Key < key_):
 
             Key2 = Key + 32
@@ -436,7 +436,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serversocket:
     if len(sys.argv) == 4 or len(sys.argv) == 5:
         print("connect to default")
         json_data = {
-            "type" : 'joind',
+            "type" : 'join',
             "id" : _Id,
             "ip" : _Ip,
             "port" : _Port
@@ -460,14 +460,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serversocket:
             get()
         elif(commande == 'update'):
             update()
-        elif(commande == 'joind'):
-            joind()
+        elif(commande == 'join'):
+            join()
         elif(commande == 'ok'):
             ok()
         elif(commande == 'nok'):
             nok()
-        elif(commande == 'plop'):
-            plop()
+        elif(commande == 'new'):
+            new()
         elif(commande == 'holder_res'):
             holder_res()
         elif(commande == 'holder_req'):
