@@ -387,7 +387,7 @@ def quit():# Ip Port Id Vget Vupd Vgeti
         ProgramStop = True
 
 _N = 1<<5
-defaultNode = Node('localhost', 8001, None)
+defaultNode = Node('127.0.0.1', 8001, None)
 if(len(sys.argv) == 1):
     _Ip = '127.0.0.1'
     _Port = 8001

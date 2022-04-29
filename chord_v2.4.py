@@ -18,6 +18,8 @@ class Node:
 def get():
     global json_data
     global _Suivant
+    global Vget
+    global Vgeti
     Key = json_data["key"] 
     Ip = json_data["ip"]
     Port = json_data["port"]
@@ -33,13 +35,17 @@ def get():
             "val"   : toSend
         }
         json_send(Ip, Port, json_data)
+        Vget += 1
     else:
         json_send(_Suivant._Ip, _Suivant._Port, json_data)
+        Vgeti += 1
 
 
 def update():
     global json_data
     global data
+    global Vupd
+    global Vgeti
     Key = json_data["key"]
     Val = json_data["val"]
 
@@ -59,15 +65,42 @@ def update():
             json_send(Ip, Port, json_data)
         else:
             print("-Update-","key :",Key,"val :",Val)
+        Vupd += 1
     else:
         json_send(_Suivant._Ip, _Suivant._Port, json_data)
+        Vgeti += 1
 
+def quit():# Ip Port Id Vget Vupd Vgeti 
+    global json_data
+    global ProgramStop
+    global Vget
+    global Vupd
+    global Vgeti
+    if json_data["id"] == None:
+        json_data["id"] = _Id
+        json_data["vget"] = 0
+        json_data["vupd"] = 0
+        json_data["vgeti"] = 0
+        json_send(_Suivant._Ip, _Suivant._Port, json_data)
+    elif json_data["id"] != _Id:
+        json_data["vget"] += Vget
+        json_data["vupd"] += Vupd
+        json_data["vgeti"] += Vgeti
+        json_send(_Suivant._Ip, _Suivant._Port, json_data)
+        ProgramStop = True
+    else:
+        json_data["vget"] += Vget
+        json_data["vupd"] += Vupd
+        json_data["vgeti"] += Vgeti
+        json_send(json_data["ip"], json_data["port"], json_data)
+        ProgramStop = True
 
 
 def join():#join Id Ip Port
     global json_data
     global data
     global _Suivant
+    global Vgeti
     Id = json_data["id"]
     Ip = json_data["ip"]
     Port = json_data["port"]
@@ -107,6 +140,7 @@ def join():#join Id Ip Port
     else:
         print(_Id,"send",json_data)
         json_send(_Suivant._Ip, _Suivant._Port, json_data)
+    Vgeti += 1
 
 
 def ok():#ok Ipp Portp ips Ports Data
@@ -115,6 +149,7 @@ def ok():#ok Ipp Portp ips Ports Data
     global _Suivant
     global _Precdant
     global data
+    global Vgeti
     data = json_data["data"]
     #print("ok",_Id,len(data),_Id+len(data),(_Id+len(data))%_N)
     _Suivant = Node(json_data["ips"],json_data["ports"],json_data["ids"])
@@ -128,10 +163,12 @@ def ok():#ok Ipp Portp ips Ports Data
     }#new Id Ip Port   
     print(_Id,"send",json_data)
     json_send(_Precdant._Ip, _Precdant._Port, json_data)
+    Vgeti += 1
 
 
 def nok():
     global _Id
+    global Vgeti
     _Id = random.randrange(_N)
     #print("ip:",_Ip,"port:",_Port,"id:",_Id)
     #join Id Ip Port
@@ -143,6 +180,7 @@ def nok():
     }
     print(_Id,"send",json_data)
     json_send(defaultNode._Ip, defaultNode._Port, json_data)
+    Vgeti += 1
 #new Id Ip Port    
 def new():
     # global json_data
@@ -184,6 +222,11 @@ elif len(sys.argv) == 5:
 
 data = {}; 
 
+Vget = 0
+Vupd = 0
+Vgeti = 0
+ProgramStop = False
+
 _Suivant = Node(_Ip,_Port,_Id)
 _Precedant = Node(_Ip,_Port,_Id)
 
@@ -207,7 +250,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serversocket:
         print(_Id,"send",json_data)
         json_send(defaultNode._Ip, defaultNode._Port, json_data)
 
-    while True:
+    while not ProgramStop:
         (clientsocket, address) = serversocket.accept()
         json_data = json_recv(clientsocket)
 
@@ -225,6 +268,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serversocket:
             nok()
         elif(commande == 'new'):
             new()
+        elif(commande == 'quit'):
+            quit()
         else:
             print("invalid")
         
